@@ -1,92 +1,103 @@
 var bone = require('bonescript');
 var firebase = require('firebase');
 
-var ref = new firebase("https://flickering-inferno-1612.firebaseio.com/Users/User1/");
-var facebook = ref.child("Facebook");
+var ref = new firebase("https://...firebaseio.com/Users/User1/");
+var facebook = ref.child("Facebook"); // Add the name of the child in firebase designate for the app.
 var gmail = ref.child("Gmail");
 var whatsapp = ref.child("Whatsapp");
 
-var ledPin00 = "USR0";
-var ledPin01 = "USR1";
-var ledPin02 = "USR2";
-var ledPin03 = "USR3";
+var ledPin00 = "USR0"; // Add the value of led in the board.
+var ledPin01 = "USR1"; // Add the value of led in the board. 
+var ledPin02 = "USR2"; // Add the value of led in the board.
+var ledPin03 = "USR3"; // Add the value of led in the board.
 
-var state = bone.LOW;
+var state = bone.LOW; // Add the state of led.
 
 var functionToggleF;
 var functionToggleG;
 var functionToggleW;
 
-bone.pinMode(ledPin00, bone.OUTPUT);
-bone.pinMode(ledPin01, bone.OUTPUT);
-bone.pinMode(ledPin02, bone.OUTPUT);
-bone.pinMode(ledPin03, bone.OUTPUT);
+var stateLedF = false; // Stores the flag for status of the led (low or high).
 
-bone.digitalWrite(ledPin01, state);
-bone.digitalWrite(ledPin02, state);
-bone.digitalWrite(ledPin03, state);
+bone.pinMode(ledPin00, bone.OUTPUT); // Set ledPin00 as an output.
+bone.pinMode(ledPin01, bone.OUTPUT); // Set ledPin01 as an output.
+bone.pinMode(ledPin02, bone.OUTPUT); // Set ledPin02 as an output.
+bone.pinMode(ledPin03, bone.OUTPUT); // Set ledPin03 as an output.
 
-faceboookData();
-gmailData();
-whatsappData();
+bone.digitalWrite(ledPin01, state); // Send the state of pin.
+bone.digitalWrite(ledPin02, state); // Send the state of pin.
+bone.digitalWrite(ledPin03, state); // Send the state of pin.
 
+faceboookData(); // Call the function for obtain the state of the values in the firebase.
+gmailData(); // Call the function for obtain the state of the values in the firebase.
+whatsappData(); // Call the function for obtain the state of the values in the firebase.
+
+/*
+* Function to obtain the values in the firebase.
+*/
 function faceboookData(){
     facebook.on("value", function(snapshot){
         if(snapshot.val() != 0){
-            console.log("Facebook is high");
-            functionToggleF = setInterval(toggleF, 1000);
+            if(!stateLedF){
+                functionToggleF = setInterval(toggleF, 1000);
+                stateLedF = true;
+            }
         }
         else{
             clearInterval(functionToggleF);
-            console.log("Facebook is low");
+            stateLedF = false;
         }
     });
 }
 
+/*
+* Function to obtain the values in the firebase.
+*/
 function gmailData(){
     gmail.on("value", function(snapshot){
-        if(snapshot.val() != 0){
+        if(snapshot.val() != 0)
             functionToggleG = setInterval(toggleG, 1000);
-            console.log("Gmail is high");
-        }
-        else{
+        else
             clearInterval(functionToggleG);
-            state = bone.LOW;
-            bone.digitalWrite(ledPin02, state);
-            console.log("Gmail is low");
-        }
     });
 }
 
+/*
+* Function to obtain the values in the firebase.
+*/
 function whatsappData(){
     whatsapp.on("value", function(snapshot){
-        if(snapshot.val() != 0){
+        if(snapshot.val() != 0)
             functionToggleW = setInterval(toggleW, 1000);
-            console.log("Whatsapp is high");
-        }
-        else{
+        else
             clearInterval(functionToggleW);
-            console.log("Whatsapp is low");
-            
-        }
     });
 }
 
+/*
+* Function to listen when the child values is changed.
+*/
 facebook.on("child_changed", function(snapshot){
-    console.log("Facebook = " + snapshot.val());
-    faceboookData();
+    faceboookData();  // Call the function for obtain the state of the values in the firebase.
 });
 
+/*
+* Function to listen when the child values is changed.
+*/
 gmail.on("child_changed", function(snapshot){
-    console.log("Gmail = " + snapshot.val());
-    gmailData();
+    gmailData();  // Call the function for obtain the state of the values in the firebase.
 });
 
+/*
+* Function to listen when the child values is changed.
+*/
 whatsapp.on("child_changed", function(snapshot){
-    console.log("Whatsapp = " + snapshot.val());
-    whatsappData();
+    whatsappData();  // Call the function for obtain the state of the values in the firebase.
 });
 
+/*
+* Set the values of the state for the leds in the board.
+*/
 function toggleF() {
     if(state == bone.LOW)
         state = bone.HIGH;
@@ -94,9 +105,11 @@ function toggleF() {
         state = bone.LOW;
                                 
     bone.digitalWrite(ledPin03, state);
-    console.log("F");
 }
 
+/*
+* Set the values of the state for the leds in the board.
+*/
 function toggleG() {
     if(state == bone.LOW)
         state = bone.HIGH;
@@ -104,9 +117,11 @@ function toggleG() {
         state = bone.LOW;
                                 
     bone.digitalWrite(ledPin02, state);
-    console.log("G");
 }
 
+/*
+* Set the values of the state for the leds in the board.
+*/
 function toggleW() {
     if(state == bone.LOW)
         state = bone.HIGH;
@@ -114,5 +129,4 @@ function toggleW() {
         state = bone.LOW;
                                 
     bone.digitalWrite(ledPin01, state);
-    console.log("W");
 }
